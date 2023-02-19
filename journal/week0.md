@@ -30,9 +30,9 @@ tasks:
 [Add enviroment variables instructions](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
 
 ## Creating a Billing Alarm
-### Created a cloudwatch billing alarm
+### Created a $10 cloudwatch billing alarm
 ![Billing Alarm](assets/BillingAlarm.png)
 
 ## Create an AWS Budget
-### I set up monthly budget for my aws account and for the bootcamp
+### I set up $10 monthly budget for my aws account and for the bootcamp
 ![Budgets](assets/Budgets.png)
