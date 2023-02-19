@@ -1,6 +1,7 @@
 # Week 0 — Billing and Architecture
 ## Required Homework Tasks
 ## Cruddur-2023 Logical Architecture Design and Lucid Chart Share Link
+!.[Cruddur 2023 Architecture].(assets/Cruddur-2023-Architecture.png)
 
 ### Install AWS CLI
 ### Step 1: AWS CLI installed and updated the AWS CLI on GitPod by following the instructions below:
