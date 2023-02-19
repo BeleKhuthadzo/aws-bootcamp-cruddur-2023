@@ -1,7 +1,25 @@
 # Week 0 — Billing and Architecture
-
 ## Required Homework Tasks
-## Install AWS CLI
 ## Cruddur-2023 Logical Architecture Design and Lucid Chart Share Link
-## Adding security components on the diagram
-## References
+
+## Install AWS CLI
+### Step 1: AWS CLI install and update instructions the AWS CLI on GitPod:
+Install AWS CLI Instructions https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+
+### Update my gitpod.yml to include the following task.
+tasks:
+  - name: aws-cli
+    env:
+      AWS_CLI_AUTO_PROMPT: on-partial
+    init: |
+      cd /workspace
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      unzip awscliv2.zip
+      sudo ./aws/install
+      cd $THEIA_WORKSPACE_ROOT
+
+### Step2: Add Environment variables to configure the AWS CLI:
+Add enviroment variables instructions: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+
+## Creating a Billing Alarm
+## Create an AWS Budget
