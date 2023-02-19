@@ -33,6 +33,6 @@ tasks:
 ### Created a $10 cloudwatch billing alarm
 ![Billing Alarm](assets/BillingAlarm.png)
 
-## Create an AWS Budget
+## Create an AWS Budgets
 ### I set up $10 monthly budget for my aws account and for the bootcamp
 ![Budgets](assets/Budgets.png)
