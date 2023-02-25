@@ -45,9 +45,99 @@ docker build -t  backend-flask ./backend-flask
 ### Run Container
 Run Command
 ```
-# -e (injests enviroment variables)
+# -e (injests enviroment variables), The --rm flag is there to tell the Docker Daemon to clean up the container and remove the file system after the container exits. 
 docker run --rm -p 4567:4567 -it -e FRONTEND_URL='*' -e BACKEND_URL='*' backend-flask
 ```
+## Containerized the Front-end
+Change directory to front-end-react-js/ and install npm with the below commands <br>
+```
+cd frontend-react-js
+npm i
+```
+### Create the front-and Dockerfile and insert the required configurations <br>
+```
+FROM node:16.18
 
+ENV PORT=3000
+
+COPY . /frontend-react-js
+WORKDIR /frontend-react-js
+RUN npm install
+EXPOSE ${PORT}
+CMD ["npm", "start"]
+```
 ### Get Frontend/Backend Container Images with (docker ps/ps -a)
 ![Container Images](assets/ps-ps-a.png)
+
+## Multiple Containers - The ```docker-compose.yml``` file
+This is to run multiple containers at the same time <br>
+```
+version: "3.8"
+services:
+  backend-flask:
+    environment:
+      FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+      BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+    build: ./backend-flask
+    ports:
+      - "4567:4567"
+    volumes:
+      - ./backend-flask:/backend-flask
+  frontend-react-js:
+    environment:
+      REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+    build: ./frontend-react-js
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend-react-js:/frontend-react-js
+  
+  # run emulation of dynamodb
+  dynamodb-local:
+    # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
+    # We needed to add user:root to get this working.
+    user: root
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data"
+    working_dir: /home/dynamodblocal
+
+  db:
+    image: postgres:13-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+# the name flag is a hack to change the default prepend folder
+# name when outputting the image names
+networks: 
+  internal-network:
+    driver: bridge
+    name: cruddur
+
+# store db locally on machine
+volumes:
+  db:
+    driver: local
+```
+
+### Run the ```docker compose up``` to aggregates the output of each container
+Below are the outputs:<br>
+
+### Opened ports (3000:4567)
+![Ports unlocked](assets/opened-ports.png)
+
+### Front-End Application ()
+I shed a tear here, i was in pain and altered the backend message.
+![Front-end Application](assets/front-end.png)
+
+
