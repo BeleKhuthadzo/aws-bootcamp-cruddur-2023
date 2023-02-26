@@ -133,11 +133,78 @@ volumes:
 ### Run the ```docker compose up``` to aggregates the output of each container
 Below are the outputs:<br>
 
-### Opened ports (3000:4567)
+### Opened ports (3000/4567)
 ![Ports unlocked](assets/opened-ports.png)
 
 ### Front-End Application ()
-I shed a tear here, i was in pain and altered the backend message.
+I shed a tear here, literally. I even altered the message on display.
 ![Front-end Application](assets/front-end.png)
 
+## Create the notificaton feature
 
+## BackEnd
+### Add notifications endpoint
+Update the ```openapi-3.0.yml``` file to add the notifications endpoint with the code below:<br>
+
+```
+  /api/activities/notification:
+    get:
+      description: 'Return a feed of activity for all of those that I follow'
+      tags:
+        - activities
+      parameters: []
+      responses:
+        '200':
+          description: Returns an array of activities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Activity'
+```
+
+### Update the ```app.py```
+```
+@app.route("/api/activities/notifications", methods=['GET'])
+def data_notifications():
+  data = NotificationsActivities.run()
+  return data, 200
+```
+### Update the ```notifications_activities.py``` with the following code:
+```
+from datetime import datetime, timedelta, timezone
+class NotificationsActivities:
+  def run():
+    now = datetime.now(timezone.utc).astimezone()    
+    results = [{
+      'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
+      'handle':  'B007',
+      'message': 'James Bond pretender!',
+      'created_at': (now - timedelta(days=2)).isoformat(),
+      'expires_at': (now + timedelta(days=5)).isoformat(),
+      'likes_count': 5,
+      'replies_count': 1,
+      'reposts_count': 6,
+      'replies': [{
+        'uuid': '26e12864-1c26-5c3a-9658-97a10f8fea67',
+        'reply_to_activity_uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
+        'handle':  'BT',
+        'message': 'T1 The Great!',
+        'likes_count': 5,
+        'replies_count': 4,
+        'reposts_count': 5,
+        'created_at': (now - timedelta(days=2)).isoformat()
+      }],
+    },
+    ]
+    return results
+```
+## Front-End
+I updated the ```App.js``` file to include NotificationsFeedPage, and path. Created and updated the ```NotificationsFeedPage.js```<br>
+
+### Notification Activity Result
+![Notifications](assets/notification-front-end.png)
+
+## DynamoDB and Postgres
+![Postgres](assets/postgres.png)
