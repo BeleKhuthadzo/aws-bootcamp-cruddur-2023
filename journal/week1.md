@@ -144,7 +144,7 @@ I shed a tear here, literally. I even altered the message on display.
 
 ## BackEnd
 ### Add notifications endpoint
-Update the ```openapi-3.0.yml``` file to add the notifications endpoint with the code below:<br>
+Updated the ```openapi-3.0.yml``` file to add the notifications endpoint with the code below:<br>
 
 ```
   /api/activities/notification:
@@ -164,14 +164,14 @@ Update the ```openapi-3.0.yml``` file to add the notifications endpoint with the
                   $ref: '#/components/schemas/Activity'
 ```
 
-### Update the ```app.py```
+### Updated the ```app.py```
 ```
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notifications():
   data = NotificationsActivities.run()
   return data, 200
 ```
-### Update the ```notifications_activities.py``` with the following code:
+### Updated the ```notifications_activities.py``` with the following code:
 ```
 from datetime import datetime, timedelta, timezone
 class NotificationsActivities:
@@ -201,10 +201,22 @@ class NotificationsActivities:
     return results
 ```
 ## Front-End
-I updated the ```App.js``` file to include NotificationsFeedPage, and path. Created and updated the ```NotificationsFeedPage.js```<br>
+I followed the instructions and updated the ```App.js``` file to include NotificationsFeedPage, and path. Created and updated the ```NotificationsFeedPage.js```<br>
 
 ### Notification Activity Result
 ![Notifications](assets/notification-front-end.png)
 
 ## DynamoDB and Postgres
+I added DynamoDB and Postgres istallations codes and volume in the ```docker-compose``` file above.<br>
+
+I followed instructions and updated the gitpod.yml file to install the postgres driver on startup with the code below:<br>
+```
+  - name: postgres
+    init: |
+      curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc|sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+      echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+      sudo apt update
+      sudo apt install -y postgresql-client-13 libpq-dev
+```
+### Login to Postgres
 ![Postgres](assets/postgres.png)
