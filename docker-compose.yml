@@ -53,7 +53,7 @@ networks:
     driver: bridge
     name: cruddur
 
-# store database locally on machine
+# store db locally on machine
 volumes:
   db:
     driver: local
