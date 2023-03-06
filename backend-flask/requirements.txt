@@ -7,12 +7,9 @@ opentelemetry-exporter-otlp-proto-http
 opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-requests
 
-# X-Ray
 aws-xray-sdk
 
-# CW Logs
 watchtower
 
-# Rollbar
 blinker
 rollbar
