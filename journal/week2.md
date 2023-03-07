@@ -65,3 +65,4 @@ tracer = trace.get_tracer("home.activities")
        now = datetime.now(timezone.utc).astimezone()
        span.set_attribute("app.now", now.isoformat())
 ```
+![Honeycomb](assets/khuthadzomockdata.png)
