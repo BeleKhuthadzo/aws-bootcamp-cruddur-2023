@@ -8,7 +8,7 @@ class HomeActivities:
   def run(logger):
     logger.info("HomeActivities")
 # Add attributes to span
-    with tracer.start_as_current_span("home-activities-mock-data"):
+    with tracer.start_as_current_span("home-activities-khuthadzomock-data"):
        span = trace.get_current_span()
        now = datetime.now(timezone.utc).astimezone()
        span.set_attribute("app.now", now.isoformat())
