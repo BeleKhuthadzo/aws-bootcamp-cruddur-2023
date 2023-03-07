@@ -66,3 +66,100 @@ tracer = trace.get_tracer("home.activities")
        span.set_attribute("app.now", now.isoformat())
 ```
 ![Honeycomb](assets/khuthadzomockdata.png)
+## X-Ray
+#### Added the SDK as a dependency to ```requirements.txt``` file and installed the package
+```
+aws-xray-sdk
+```
+#### Added the middleware for flask to the application to instrument https requests in the ```app.py```
+```
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+
+xray_url = os.getenv("AWS_XRAY_URL")
+xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+XRayMiddleware(app, xray_recorder)
+```
+#### Configured the SDK to load sampling rules from a JSON document. 
+```
+{
+  "SamplingRule": {
+      "RuleName": "Cruddur",
+      "ResourceARN": "*",
+      "Priority": 9000,
+      "FixedRate": 0.1,
+      "ReservoirSize": 5,
+      "ServiceName": "backend-flask",
+      "ServiceType": "*",
+      "Host": "*",
+      "HTTPMethod": "*",
+      "URLPath": "*",
+      "Version": 1
+  }
+}
+```
+#### X-Ray group (group traces together) and create sampling rule through aws cli
+##### X-Ray Group
+```
+FLASK_ADDRESS="https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+aws xray create-group \
+   --group-name "Cruddur" \
+   --filter-expression "service(\"$backend-flask\")"
+```
+##### Sampling rule
+```
+aws xray create-sampling-rule --cli-input-json file://aws/json/xray.json
+```
+#### Added AWS X-Ray daemon to ```docker-compose.yml``` file
+```
+  xray-daemon:
+    image: "amazon/aws-xray-daemon"
+    environment:
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+      AWS_REGION: "us-east-1"
+    command:
+      - "xray -o -b xray-daemon:2000"
+    ports:
+      - 2000:2000/udp
+```
+Added Enviroment variable to ```docker-compose.yml```
+```
+AWS_XRAY_URL: "*4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}*"
+AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
+```
+#### X-Ray Traces and Service map 
+![xray](assets/xray.png)
+## AWS Cloudwatch Logs
+#### Add ```watchtower``` to the ```requirements.txt```.
+Watchtower is a log handler for Amazon Web Services CloudWatch Logs.
+#### Load configuration into the application ```app.py```
+```
+import watchtower
+import logging
+from time import strftime
+```
+```
+# Configuring Logger to Use CloudWatch
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+cw_handler = watchtower.CloudWatchLogHandler(log_group='cruddur')
+LOGGER.addHandler(console_handler)
+LOGGER.addHandler(cw_handler)
+LOGGER.info("some message")
+```
+```
+# Error Logging
+@app.after_request
+def after_request(response):
+    timestamp = strftime('[%Y-%b-%d %H:%M]')
+    LOGGER.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+    return response
+```
+Set Env Vars in ```docker-compose.yml```
+```
+AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+```
