@@ -50,3 +50,5 @@ tracer = trace.get_tracer(__name__)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
 ```
+#### Honeycomb Traces
+![Honeycomb](assets/honeycomb.png)
