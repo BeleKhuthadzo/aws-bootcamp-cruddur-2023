@@ -52,3 +52,16 @@ RequestsInstrumentor().instrument()
 ```
 #### Honeycomb Traces
 ![Honeycomb](assets/honeycomb.png)
+#### Created a tracer to create a ```home.activities``` span and added attributes ```home-activities-khuthadzomock-data``` to the span
+```
+# creating home.activities span
+from opentelemetry import trace
+tracer = trace.get_tracer("home.activities")
+```
+```
+# Add attributes to span
+    with tracer.start_as_current_span("home-activities-khuthadzomock-data"):
+       span = trace.get_current_span()
+       now = datetime.now(timezone.utc).astimezone()
+       span.set_attribute("app.now", now.isoformat())
+```
