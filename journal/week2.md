@@ -130,6 +130,9 @@ AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
 ```
 #### X-Ray Traces and Service map 
 ![xray](assets/xray.png)
+#### X-Ray Subsegments
+Added the ```xray_recorder.capture('endpoint')``` on ```app.py``` to create a new segment called "mockdata" and trace the code within home and user activities blocks.
+![xray](assets/subsegments.png)
 ## AWS Cloudwatch Logs
 #### Add ```watchtower``` to the ```requirements.txt```.
 Watchtower is a log handler for Amazon Web Services CloudWatch Logs.
