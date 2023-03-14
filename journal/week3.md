@@ -185,6 +185,9 @@ const onsubmit = async (event) => {
   return false
 }
 ```
+#### Working Confimation page
+![Confirmation Page](assets/confirm.png)
+#### Verification code received
 ![Verification](assets/verification.png)
 ## Recovery Page
 Updated the ```RecoveryPage.js``` to enable users to reset passwords.
