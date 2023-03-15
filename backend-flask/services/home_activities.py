@@ -3,6 +3,8 @@ from datetime import datetime, timedelta, timezone
 # creating home.activities span
 from opentelemetry import trace
 
+from lib.db import pool
+
 tracer = trace.get_tracer("home.activities")
 class HomeActivities:
   def run(logger):
