@@ -5,13 +5,13 @@ from opentelemetry import trace
 
 tracer = trace.get_tracer("home.activities")
 class HomeActivities:
-  def run(logger):
-    logger.info("HomeActivities")
-# Add attributes to span
+  def run(cognito_user_id=None):
+   # logger.info("HomeActivities")
+    # Add attributes to span
     with tracer.start_as_current_span("home-activities-khuthadzomock-data"):
-       span = trace.get_current_span()
-       now = datetime.now(timezone.utc).astimezone()
-       span.set_attribute("app.now", now.isoformat())
+        span = trace.get_current_span()
+        now = datetime.now(timezone.utc).astimezone()
+        span.set_attribute("app.now", now.isoformat())
        
     results = [{
       'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
