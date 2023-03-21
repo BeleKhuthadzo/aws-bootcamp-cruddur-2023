@@ -64,7 +64,7 @@ services:
       - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
 
-# postgres
+# postgres - db
   db:
     image: postgres:13-alpine
     restart: always
