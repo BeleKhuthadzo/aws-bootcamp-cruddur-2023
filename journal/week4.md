@@ -239,4 +239,5 @@ def lambda_handler(event, context):
     return event
     ```
 #### Lambda incocation after signing as a new user
-![Lambda](assets/lambdainvoc.png)
+![Lambda Invocation](assets/lambdainvoc.png)
+
