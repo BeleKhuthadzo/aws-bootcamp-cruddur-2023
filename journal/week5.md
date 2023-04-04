@@ -89,7 +89,48 @@ aws dynamodb list-tables  $ENDPOINT_URL \
   --query TableNames \
   --output table
 ```
+#### Drop table
+```
+#! /usr/bin/bash
 
+set -e # stop if it fails at any point
+
+if [ -z "$1" ]; then
+  echo "No TABLE_NAME argument supplied eg ./bin/ddb/drop cruddur-messages prod "
+  exit 1
+fi
+TABLE_NAME=$1
+
+if [ "$2" = "prod" ]; then
+  ENDPOINT_URL=""
+else
+  ENDPOINT_URL="--endpoint-url=http://localhost:8000"
+fi
+
+echo "deleting table: $TABLE_NAME"
+
+aws dynamodb delete-table $ENDPOINT_URL \
+  --table-name $TABLE_NAME
+```
+#### Add Scan script to read data from a cruddur messages table in using Boto3 library.
+```
+#!/usr/bin/env python3
+
+import boto3
+
+attrs = {
+  'endpoint_url': 'http://localhost:8000'
+}
+ddb = boto3.resource('dynamodb',**attrs)
+table_name = 'cruddur-messages'
+
+table = ddb.Table(table_name)
+response = table.scan()
+
+items = response['Items']
+for item in items:
+  print(item)
+```
 #### Assign permissions to the scripts
 ```
 chmod u+x bin/ddb [scripts]
