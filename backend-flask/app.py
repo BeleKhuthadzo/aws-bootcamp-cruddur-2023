@@ -4,7 +4,7 @@ from flask_cors import CORS, cross_origin
 import os
 import sys
 
-#from services.users_short import *
+from services.users_short import *
 from services.home_activities import *
 from services.notifications_activities import *
 from services.user_activities import *
@@ -130,6 +130,7 @@ def rollbar_test():
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
   access_token = extract_access_token(request.headers)
+  
   try:
     claims = cognito_jwt_token.verify(access_token)
     # authenicatied request
