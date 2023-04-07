@@ -37,7 +37,7 @@ export default function HomeFeedPage() {
   };
 
   React.useEffect(()=>{
-    //prevents double call
+    //prevents double calls
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
