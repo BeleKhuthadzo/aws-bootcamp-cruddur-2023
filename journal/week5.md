@@ -1,4 +1,5 @@
 # Week 5 — DynamoDB and Serverless Caching
+Week 5 was focused on implementing DynamoDB and Serverless Caching. Implemented DynamoDB locally, seeded the data, used AWS SDK for DynamoDB, created a production DynamoDB table and lambda function to trigger message streams.
 
 #### Install AWS Python SDK Boto3 to ```requirements.txt```
 ## Add DynamoDB Utility Scripts
