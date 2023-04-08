@@ -1,6 +1,6 @@
 # Week 5 — DynamoDB and Serverless Caching
 
-#### Install AWS Python SDK Boto3 to ```requirements.txt``
+#### Install AWS Python SDK Boto3 to ```requirements.txt```
 ## Add DynamoDB Utility Scripts
 #### Create table Schema-Load
 ```
