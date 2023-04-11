@@ -321,9 +321,150 @@ aws ecs register-task-definition --cli-input-json file://aws/task-definitions/ba
 ```
 ### Add ```frontend-react.json``` file
 ```
-
+{
+    "family": "frontend-react-js",
+    "executionRoleArn": "arn:aws:iam::546310198960:role/CruddurServiceExecutionRole",
+    "taskRoleArn": "arn:aws:iam::546310198960:role/CruddurTaskRole",
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512",
+    "requiresCompatibilities": [ 
+      "FARGATE" 
+    ],
+    "containerDefinitions": [
+      {
+        "name": "xray",
+        "image": "public.ecr.aws/xray/aws-xray-daemon" ,
+        "essential": true,
+        "user": "1337",
+        "portMappings": [
+          {
+            "name": "xray",
+            "containerPort": 2000,
+            "protocol": "udp"
+          }
+        ]
+      },
+      {
+        "name": "frontend-react-js",
+        "image": "387543059434.dkr.ecr.us-east-1.amazonaws.com/frontend-react-js",
+        "essential": true,
+        "healthCheck": {
+          "command": [
+            "CMD-SHELL",
+            "curl -f http://localhost:3000 || exit 1"
+          ],
+          "interval": 30,
+          "timeout": 5,
+          "retries": 3
+        },
+        "portMappings": [
+          {
+            "name": "frontend-react-js",
+            "containerPort": 3000,
+            "protocol": "tcp", 
+            "appProtocol": "http"
+          }
+        ],
+  
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+              "awslogs-group": "cruddur",
+              "awslogs-region": "us-east1",
+              "awslogs-stream-prefix": "frontend-react-js"
+          }
 # Register Task Defintion
 aws ecs register-task-definition --cli-input-json file://aws/task-definitions/frontend-react-js.json
+```
+### Create frontend ```Dockerfile.prod```
+```
+# Base Image ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FROM node:16.18 AS build
+
+ARG REACT_APP_BACKEND_URL
+ARG REACT_APP_AWS_PROJECT_REGION
+ARG REACT_APP_AWS_COGNITO_REGION
+ARG REACT_APP_AWS_USER_POOLS_ID
+ARG REACT_APP_CLIENT_ID
+
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+ENV REACT_APP_AWS_PROJECT_REGION=$REACT_APP_AWS_PROJECT_REGION
+ENV REACT_APP_AWS_COGNITO_REGION=$REACT_APP_AWS_COGNITO_REGION
+ENV REACT_APP_AWS_USER_POOLS_ID=$REACT_APP_AWS_USER_POOLS_ID
+ENV REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID
+
+COPY . ./frontend-react-js
+WORKDIR /frontend-react-js
+RUN npm install
+RUN npm run build
+
+# New Base Image ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FROM nginx:1.23.3-alpine
+
+# --from build is coming from the Base Image
+COPY --from=build /frontend-react-js/build /usr/share/nginx/html
+COPY --from=build /frontend-react-js/nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 3000
+```
+### Set ```nginx.conf``` proxy
+```
+# Set the worker processes
+worker_processes 1;
+
+# Set the events module
+events {
+  worker_connections 1024;
+}
+
+# Set the http module
+http {
+  # Set the MIME types
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  # Set the log format
+  log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+  # Set the access log
+  access_log  /var/log/nginx/access.log main;
+
+  # Set the error log
+  error_log /var/log/nginx/error.log;
+
+  # Set the server section
+  server {
+    # Set the listen port
+    listen 3000;
+
+    # Set the root directory for the app
+    root /usr/share/nginx/html;
+
+    # Set the default file to serve
+    index index.html;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to redirecting to index.html
+        try_files $uri $uri/ $uri.html /index.html;
+    }
+
+    # Set the error page
+    error_page  404 /404.html;
+    location = /404.html {
+      internal;
+    }
+
+    # Set the error page for 500 errors
+    error_page  500 502 503 504  /50x.html;
+    location = /50x.html {
+      internal;
+    }
+  }
+}
 ```
 ### Get default VPC ID
 ```
@@ -376,8 +517,12 @@ aws ecs create-service --cli-input-json file://aws/json/service-frontend-react-j
 aws ecs execute-command  \
 --region $AWS_DEFAULT_REGION \
 --cluster cruddur \
---task dceb2ebdc11c49caadd64e6521c6b0c7 \
+--task 9fd9a8fa72704c75a8355c5c0c69f85b \
 --container backend-flask \
 --command "/bin/bash" \
 --interactive
 ```
+244
+248 add policy
+Run task deffs
+255
