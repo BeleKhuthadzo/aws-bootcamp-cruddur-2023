@@ -21,13 +21,13 @@ except psycopg.Error as e:
 finally:
   conn.close()
 ```
-#### Implement health check for Flask app
+### Implement health check for Flask app
 ```
 @app.route('/api/health-check')
 def health_check():
   return {'success': True}, 200
 ```
-#### Add a script to ```bin/backend/flask/health-check```
+### Add a script to ```bin/backend/flask/health-check```
 ```
 #!/usr/bin/env python3
 
@@ -48,76 +48,76 @@ except Exception as e:
   print(e)
   exit(1) # false
 ```
-#### create cloudwatch log group
+### create cloudwatch log group
 ```
 aws logs create-log-group --log-group-name "/cruddur/fargate-cluster"
 aws logs put-retention-policy --log-group-name "/cruddur/fargate-cluster" --retention-in-days 1
 ```
-#### Create ECS Cluster
+### Create ECS Cluster
 ```
 aws ecs create-cluster \
 --cluster-name cruddur \
 --service-connect-defaults namespace=cruddur
 ```
 ## Create ECR Repos
-#### Base-Image
+### Base-Image
 ```
 aws ecr create-repository \
   --repository-name cruddur-python \
   --image-tag-mutability MUTABLE
 ```
 ## Export env vars
-#### Base
+### Base
 ```
 export ECR_PYTHON_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/cruddur-python"
 echo $ECR_PYTHON_URL
 ```
-#### Backend Flask
+### Backend Flask
 ```
 export ECR_BACKEND_FLASK_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/backend-flask"
 echo $ECR_BACKEND_FLASK_URL
 ```
-#### Frontend React
+### Frontend React
 ```
 export ECR_FRONTEND_REACT_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/frontend-react-js"
 echo $ECR_FRONTEND_REACT_URL
 ```
-#### Login to ECR
+### Login to ECR
 ```
 aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
 ```
-#### Pull the base image
+### Pull the base image
 ```
 docker pull python:3.10-slim-buster
 ```
-#### Tag the image
+### Tag the image
 ```
 docker tag python:3.10-slim-buster $ECR_PYTHON_URL:3.10-slim-buster
 ```
-#### Push the image to ECR Repo
+### Push the image to ECR Repo
 ```
 docker push $ECR_PYTHON_URL:3.10-slim-buster
 ```
-#### Flask
+### Flask
 ```
 aws ecr create-repository \
   --repository-name backend-flask \
   --image-tag-mutability MUTABLE
 ```
-#### Build the image
+### Build the image
 ```
 docker build -t backend-flask .
 ```
-#### Tag the image
+### Tag the image
 ```
 docker tag backend-flask:latest $ECR_BACKEND_FLASK_URL:latest
 ```
-#### Push to ECR Repo
+### Push to ECR Repo
 ```
 docker push $ECR_BACKEND_FLASK_URL:latest
 ```
 ## Add AWS Policies
-#### Service Execution Role Policy
+### Service Execution Role Policy
 ```
     "Version":"2012-10-17",
     "Statement":[
@@ -146,7 +146,7 @@ docker push $ECR_BACKEND_FLASK_URL:latest
     ]
 }
 ```
-#### Service Assume Role Execution Policy
+### Service Assume Role Execution Policy
 ```
 {
     "Version":"2012-10-17",
@@ -157,8 +157,8 @@ docker push $ECR_BACKEND_FLASK_URL:latest
           "Service":["ecs-tasks.amazonaws.com"]
       }}]
   }
-  
-#### Create Service Execution Role
+```
+### Create Service Execution Role
 ```
 aws iam create-role \
     --role-name CruddurServiceExecutionRole \
@@ -173,8 +173,7 @@ aws iam create-role \
   }]
 }"
 ```
-```
-#### Attach policies
+### Attach policies
 ```
 aws iam create-role \
   --role-name CruddurServiceExecutionRole \
@@ -193,7 +192,7 @@ aws iam attach-role-policy \
   --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy \
   --role-name CruddurServiceExecutionRole
 ```
-#### Create Task Role
+### Create Task Role
 ```
 aws iam create-role \
     --role-name CruddurTaskRole \
@@ -207,8 +206,9 @@ aws iam create-role \
     }
   }]
 }"
-
-#### Session Manager
+```
+### Session Manager
+```
 aws iam put-role-policy \
   --policy-name SSMAccessPolicy \
   --role-name CruddurTaskRole \
@@ -225,14 +225,13 @@ aws iam put-role-policy \
     \"Resource\":\"*\"
   }]
 }
-"
 # CloudWatch
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/CloudWatchFullAccess --role-name CruddurTaskRole
 
 #X-Ray
 aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess --role-name CruddurTaskRole
 ```
-#### Pass sensitive data to task
+### Pass sensitive data to task
 ```
 aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/AWS_ACCESS_KEY_ID" --value $AWS_ACCESS_KEY_ID
 aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY" --value $AWS_SECRET_ACCESS_KEY
@@ -241,7 +240,7 @@ aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/ROLLB
 aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/OTEL_EXPORTER_OTLP_HEADERS" --value "x-honeycomb-team=$HONEYCOMB_API_KEY"
 ```
 ## Create Task-Definitions folder
-#### Add ```backend-flask.json``` file
+### Add ```backend-flask.json``` file
 ```
 {
     "family": "backend-flask",
@@ -320,7 +319,7 @@ aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/OTEL_
 # Register task definition
 aws ecs register-task-definition --cli-input-json file://aws/task-definitions/backend-flask.json
 ```
-#### #### Add ```frontend-react.json``` file
+### Add ```frontend-react.json``` file
 ```
 
 # Register Task Defintion
@@ -351,7 +350,7 @@ export CRUD_SERVICE_SG=$(aws ec2 create-security-group \
   --query "GroupId" --output text)
 echo $CRUD_SERVICE_SG
 ```
-#### Open port 80
+### Open port 80
 ```
 aws ec2 authorize-security-group-ingress \
   --group-id $CRUD_SERVICE_SG \
@@ -359,7 +358,7 @@ aws ec2 authorize-security-group-ingress \
   --port 80 \
   --cidr 0.0.0.0/0
 ```
-#### Install Session Manager for linux
+### Install Session Manager for linux
 ```
 curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
 
@@ -367,7 +366,6 @@ sudo dpkg -i session-manager-plugin.deb
 
 session-manager-plugin
 ```
-### 
 ### Create Service throUgh AWS CLI
 ```
 aws ecs create-service --cli-input-json file://aws/json/service-backend-flask.json
