@@ -141,7 +141,7 @@ docker push $ECR_BACKEND_FLASK_URL:latest
                 "ssm:GetParameters",
                 "ssm:GetParameter"
             ],
-            "Resource": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/*"
+            "Resource": "arn:aws:ssm:us-east-1:***********:parameter/cruddur/backend-flask/*"
         }
     ]
 }
@@ -244,8 +244,8 @@ aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/OTEL_
 ```
 {
     "family": "backend-flask",
-    "executionRoleArn": "arn:aws:iam::546310198960:role/CruddurServiceExecutionRole",
-    "taskRoleArn": "arn:aws:iam::546310198960:role/CruddurTaskRole",
+    "executionRoleArn": "arn:aws:iam::***********:role/CruddurServiceExecutionRole",
+    "taskRoleArn": "arn:aws:iam::************:role/CruddurTaskRole",
     "networkMode": "awsvpc",
     "cpu": "256",
     "memory": "512",
@@ -268,7 +268,7 @@ aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/OTEL_
       },
       {
         "name": "backend-flask",
-        "image": "546310198960.dkr.ecr.us-east-1.amazonaws.com/backend-flask",
+        "image": "**********.dkr.ecr.us-east-1.amazonaws.com/backend-flask",
         "essential": true,
         "healthCheck": {
           "command": [
@@ -306,11 +306,11 @@ aws ssm put-parameter --type "SecureString" --name "/cruddur/backend-flask/OTEL_
           {"name": "AWS_DEFAULT_REGION", "value": "us-east-1"}
         ],
         "secrets": [
-          {"name": "AWS_ACCESS_KEY_ID"    , "valueFrom": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID"},
-          {"name": "AWS_SECRET_ACCESS_KEY", "valueFrom": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY"},
-          {"name": "CONNECTION_URL"       , "valueFrom": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/CONNECTION_URL" },
-          {"name": "ROLLBAR_ACCESS_TOKEN" , "valueFrom": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/ROLLBAR_ACCESS_TOKEN" },
-          {"name": "OTEL_EXPORTER_OTLP_HEADERS" , "valueFrom": "arn:aws:ssm:us-east-1:546310198960:parameter/cruddur/backend-flask/OTEL_EXPORTER_OTLP_HEADERS" }
+{"name": "AWS_ACCESS_KEY_ID"    , "valueFrom": "arn:aws:ssm:us-east-1:**********:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID"},
+{"name": "AWS_SECRET_ACCESS_KEY", "valueFrom": "arn:aws:ssm:us-east-1:**********:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY"},
+{"name": "CONNECTION_URL"       , "valueFrom": "arn:aws:ssm:us-east-1:***********:parameter/cruddur/backend-flask/CONNECTION_URL" },
+{"name": "ROLLBAR_ACCESS_TOKEN" , "valueFrom": "arn:aws:ssm:us-east-1:**********:parameter/cruddur/backend-flask/ROLLBAR_ACCESS_TOKEN" },
+{"name": "OTEL_EXPORTER_OTLP_HEADERS" , "valueFrom": "arn:aws:ssm:us-east-1:**********:parameter/cruddur/backend-flask/OTEL_EXPORTER_OTLP_HEADERS" }
         ]
       }
     ]
@@ -323,8 +323,8 @@ aws ecs register-task-definition --cli-input-json file://aws/task-definitions/ba
 ```
 {
     "family": "frontend-react-js",
-    "executionRoleArn": "arn:aws:iam::546310198960:role/CruddurServiceExecutionRole",
-    "taskRoleArn": "arn:aws:iam::546310198960:role/CruddurTaskRole",
+    "executionRoleArn": "arn:aws:iam::***********:role/CruddurServiceExecutionRole",
+    "taskRoleArn": "arn:aws:iam::************:role/CruddurTaskRole",
     "networkMode": "awsvpc",
     "cpu": "256",
     "memory": "512",
@@ -347,7 +347,7 @@ aws ecs register-task-definition --cli-input-json file://aws/task-definitions/ba
       },
       {
         "name": "frontend-react-js",
-        "image": "387543059434.dkr.ecr.us-east-1.amazonaws.com/frontend-react-js",
+        "image": "**********.dkr.ecr.us-east-1.amazonaws.com/frontend-react-js",
         "essential": true,
         "healthCheck": {
           "command": [
