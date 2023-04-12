@@ -27,7 +27,7 @@ finally:
 def health_check():
   return {'success': True}, 200
 ```
-### Add a script to ```bin/backend/flask/health-check```
+### Add a script to ```backend/bin/flask/health-check```
 ```
 #!/usr/bin/env python3
 
@@ -67,20 +67,50 @@ aws ecr create-repository \
   --image-tag-mutability MUTABLE
 ```
 ## Export env vars
-### Base
+### Base URL
 ```
 export ECR_PYTHON_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/cruddur-python"
 echo $ECR_PYTHON_URL
 ```
-### Backend Flask
+### Backend Flask URL
 ```
 export ECR_BACKEND_FLASK_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/backend-flask"
 echo $ECR_BACKEND_FLASK_URL
 ```
-### Frontend React
+### Frontend React URL
 ```
 export ECR_FRONTEND_REACT_URL="$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/frontend-react-js"
 echo $ECR_FRONTEND_REACT_URL
+```
+### Build Image front-end
+```
+docker build \
+--build-arg REACT_APP_BACKEND_URL="https://cruddur-alb-928169678.us-east-1.elb.amazonaws.com:4567" \
+--build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
+--build-arg REACT_APP_AWS_USER_POOLS_ID="us-east-1_Bc4AxAx3d" \
+--build-arg REACT_APP_CLIENT_ID="ca3tt6n0jcdi6qhjs0cttd11i" \
+-t frontend-react-js \
+-f Dockerfile.prod \
+.
+```
+### Build frontend repo
+```
+aws ecr create-repository \
+  --repository-name frontend-react-js \
+  --image-tag-mutability MUTABLE
+```
+### Tag frontend repo
+```
+docker tag frontend-react-js:latest $ECR_FRONTEND_REACT_URL:latest
+```
+### Push the image
+```
+docker push $ECR_FRONTEND_REACT_URL:latest
+```
+### Test locally
+```
+docker run --rm -p 3000:3000 -it frontend-react-js 
 ```
 ### Login to ECR
 ```
@@ -98,7 +128,7 @@ docker tag python:3.10-slim-buster $ECR_PYTHON_URL:3.10-slim-buster
 ```
 docker push $ECR_PYTHON_URL:3.10-slim-buster
 ```
-### Flask
+### Build backend-flask
 ```
 aws ecr create-repository \
   --repository-name backend-flask \
@@ -408,7 +438,7 @@ COPY --from=build /frontend-react-js/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 3000
 ```
-### Set ```nginx.conf``` proxy
+### Set ```nginx.conf``` webserver proxy
 ```
 # Set the worker processes
 worker_processes 1;
@@ -507,7 +537,7 @@ sudo dpkg -i session-manager-plugin.deb
 
 session-manager-plugin
 ```
-### Create Service throUgh AWS CLI
+### Create Service through AWS CLI
 ```
 aws ecs create-service --cli-input-json file://aws/json/service-backend-flask.json
 aws ecs create-service --cli-input-json file://aws/json/service-frontend-react-js.json
@@ -517,12 +547,8 @@ aws ecs create-service --cli-input-json file://aws/json/service-frontend-react-j
 aws ecs execute-command  \
 --region $AWS_DEFAULT_REGION \
 --cluster cruddur \
---task 9fd9a8fa72704c75a8355c5c0c69f85b \
+--task a8ac2ec202dd4923a82d41c1d8cf4588 \
 --container backend-flask \
 --command "/bin/bash" \
 --interactive
 ```
-244
-248 add policy
-Run task deffs
-255
