@@ -85,7 +85,7 @@ echo $ECR_FRONTEND_REACT_URL
 ### Build Image front-end
 ```
 docker build \
---build-arg REACT_APP_BACKEND_URL="https://cruddur-alb-928169678.us-east-1.elb.amazonaws.com:4567" \
+--build-arg REACT_APP_BACKEND_URL="https://api.bgan.link" \
 --build-arg REACT_APP_AWS_PROJECT_REGION="$AWS_DEFAULT_REGION" \
 --build-arg REACT_APP_AWS_COGNITO_REGION="$AWS_DEFAULT_REGION" \
 --build-arg REACT_APP_AWS_USER_POOLS_ID="us-east-1_Bc4AxAx3d" \
@@ -401,7 +401,7 @@ aws ecs register-task-definition --cli-input-json file://aws/task-definitions/ba
           "logDriver": "awslogs",
           "options": {
               "awslogs-group": "cruddur",
-              "awslogs-region": "us-east1",
+              "awslogs-region": "us-east-1",
               "awslogs-stream-prefix": "frontend-react-js"
           }
 # Register Task Defintion
