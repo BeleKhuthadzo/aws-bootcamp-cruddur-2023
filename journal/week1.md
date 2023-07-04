@@ -66,6 +66,14 @@ RUN npm install
 EXPOSE ${PORT}
 CMD ["npm", "start"]
 ```
+### Build Container
+```
+docker build -t frontend-react-js ./frontend-react-js
+```
+### Run Container
+```
+docker run -p 3000:3000 -d frontend-react-js
+```
 ### Get Frontend/Backend Container Images with (docker ps/ps -a)
 ![Container Images](assets/ps-ps-a.png)
 
